@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Карточка</title>
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}"/>
+	<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+	<style>
+		.special {
+		}
+		.special:focus { outline-style: none; } 
+		#cld{
+			display: none;
+		}
+	</style>
+	
+</head>
+<body>
+	<div th:insert="layouts/header.html :: navbar"></div>
+	<div class="container">
+	
+		<div class="row">
+		
+			<div class="col">
+					<p th:text="${'ID: '+patient.getId()}">VALUE</p> 
+					<p th:text="${patient.getLastName() +' '+ patient.getName() +' '+ patient.getPatroNymic()}">VALUE</p>
+					<a th:href="@{/patients/{id}/edit(id=${patient.getId()})}">Редактировать</a><br/>
+					<a th:href="@{/records/{id}/allRecords(id=${patient.getId()})}">Записи на прием</a>
+					<form th:method="DELETE"
+						th:action="@{/patients/{id}(id=${patient.getId()})}">
+						<input type="submit" value="Удалить" />
+					</form>
+			</div>
+			
+			<div class="col-6" id="teethContainer" >
+				<div align="center">
+					<h4>Зубная карта</h4>
+												
+					<div  id="bnm"></div>
+					<div  id="cld"></div>
+					
+				</div>
+			</div>
+			
+			<div class="col">
+				<form th:method="POST" th:action="@{/patients/{id}/dent(id=${patient.getId()})}" th:object="${dent}">
+					<div class="form-group">
+					
+						<div class="form-group"  style="width: 100px;">
+							<label class="control-label">Номер зуба</label>
+							<input type="text" id ="toothNumber" th:field="*{toothNumber}"class="form-control" readonly/>
+						</div>
+						
+						<div class="form-group">
+							<label class="form-group">Состояние</label>
+							<select id ="dentCondition" th:field="*{dentCondition}"class="form-control">
+								<option selected value="1">Кариес</option>
+								<option value="2">Пульпит</option>
+								<option value="3">Пародонтит</option>	
+								<option value="4">Радиск</option>	
+								<option value="5">Здоров</option>		
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="form-group">Описание</label>
+							<textarea name="message" id="message" th:field="*{comment}" class="form-control"></textarea>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary">Сохранить</button>
+						</div>					
+					</div>
+				</form>
+			</div>	
+		</div>
+	</div>
+	
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+			class Dent{
+				constructor(id,toothNumber, healingDate, dentCondition,comment){
+			        this.id = id;
+			        this.toothNumber = toothNumber;
+			        this.healingDate = healingDate;			   
+			        this.dentCondition = dentCondition;
+			        this.comment = comment;
+			    }
+			}
+			
+			let teeth = new Map(); 
+			let DentMap=new Map();
+			
+			/*[# th:each="n : ${patient.getTeeth()}"]*/
+				teeth.set("[(${n.getToothNumber()})]","[(${n.getDentCondition()})]");  // красим зубы
+				DentMap.set("[(${n.getToothNumber()})]", new Dent("[(${n.getId()})]", 
+																   "[(${n.getToothNumber()})]",																  
+																   "[(${n.getHealingDate()})]",															  
+																   "[(${n.getDentCondition()})]",
+																   "[(${n.getComment()})]"));	
+			/*[/]*/
+		
+			let numbers = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+			let childNumb = ['V', 'IV', 'III', 'II', 'I', 'I', 'II', 'III', 'IV', 'V','V', 'IV', 'III', 'II', 'I', 'I', 'II', 'III', 'IV', 'V'];
+			
+			$(document).ready(function(){
+				
+				// постоянные зубы
+				var permTeeth = '<div style="display:flex;" >';
+				for(var i = 1; i < 33 ; i++) {
+					permTeeth += '<div><image id="'+ i + '"class="special" src="/resources/images/';
+					switch(teeth.get(String(i))) {
+						case '1' : permTeeth += 'Caries.png'; break;
+						case '2' : permTeeth += 'Pulpit.png'; break;
+						case '3' : permTeeth += 'Parodontit.png'; break;		
+						case '4' : permTeeth += 'Radisk.png'; break;
+						case '5' : permTeeth += 'Healthy.png'; break;
+						default: permTeeth += 'undefined.png'; break;
+					}
+					permTeeth += '" width="30" height="auto"><h6>' + numbers[i-1] + '</h6></div>';
+					if(i == 8 || i == 24)
+						permTeeth += '<h5>&nbsp;&nbsp;&nbsp;</h5>';
+					if(i == 16)
+						permTeeth += '</div><div style="display:flex;">';
+					if(i == 32)
+						permTeeth += '</div>';
+				}
+				permTeeth += '<input type="button" value="Молочные зубы" onmousedown="viewchild()" >';
+				 $('#bnm').append(permTeeth);
+			 
+			 	// Молочные зубы
+				 var childTeeth = '<div style="display:flex;">';
+				 for(var i = 33; i < 53; i++ ) {
+				 	
+					childTeeth += '<div><image id="'+ i + '"class="special" src="/resources/images/';
+					switch(teeth.get(String(i))) {
+								
+						case '1' : childTeeth += 'Caries.png'; break;
+						case '2' : childTeeth += 'Pulpit.png'; break;				
+						case '3' : childTeeth += 'Parodontit.png'; break;
+						case '4' : childTeeth += 'Radisk.png'; break;
+						case '5' : childTeeth += 'Healthy.png'; break;
+						default: childTeeth += 'undefined.png'; break;
+					}
+					
+					childTeeth += '" width="30" height="auto"><h6>' + childNumb[i-33] + '</h6></div>';
+					
+					if(i == 37 || i == 47)
+						childTeeth += '<h5>&nbsp;&nbsp;&nbsp;</h5>';
+					if(i == 42)
+						childTeeth += '</div><div style="display:flex;" >';
+					if(i == 52)
+						childTeeth += '</div>';	
+					}
+				 
+					childTeeth += '<input type="button" value="Постоянные зубы" onmousedown="viewTeeth()" >';	
+					$('#cld').append(childTeeth);
+			});
+			
+			var clickBtnId = 0;
+			$(document).on('click', '.special', function(event){
+				if (event.target.tagName === 'IMG') {
+					if(clickBtnId != 0) {
+						document.getElementById(String(clickBtnId)).style['height'] = null;
+						document.getElementById(String(clickBtnId)).style['width'] = null;
+					}
+					var imgId = event.target.id
+					document.getElementById(String(imgId)).style['height'] = '60px';
+					document.getElementById(String(imgId)).style['width'] = '40px';
+					
+					if(DentMap.get(imgId) != null){
+						var info = DentMap.get(imgId);
+						document.getElementById("message").value=info.comment;
+						document.getElementById("dentCondition").value=info.dentCondition;
+						document.getElementById("toothNumber").value=imgId;
+					}else{					
+						document.getElementById("message").value=null;
+						document.getElementById("dentCondition").value=null;
+						document.getElementById("toothNumber").value=imgId;
+					}
+					clickBtnId = imgId
+				}
+			});
+			
+			function viewchild(){
+				  document.getElementById("bnm").style.display = "none";
+				  document.getElementById("cld").style.display = "block";
+				};
+				
+			function viewTeeth(){
+				  document.getElementById("bnm").style.display = "block";
+				  document.getElementById("cld").style.display = "none";
+			};
+		/*]]>*/
+	</script>
+	
+	<br />
+	<br />
+	
+	<div align="center" class="container">
+		<table class="table table-bordered table-striped" border="1">
+			<tr>
+				<th>ID</th>
+				<th>Номер зуба</th>
+				<th>Дата лечения</th>
+				<th>Состояние</th>
+				<th>Описание</th>
+			</tr>
+			<tr th:each="dent : ${patient.getTeeth()}">
+				<td th:text="${dent.getId()}"></td>
+				<td th:text="${dent.getToothCode()}"></td>
+				<td th:text="${dent.getHealingDate()}"></td>
+				<td th:text="${dent.getDentCondition()}"></td>
+				<td th:text="${dent.getComment()}"></td>
+			</tr>
+		</table>
+	</div>
+	
+<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/1.14.3/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/4.3.1/js/bootstrap.min.js}"></script>	
+</body>
+</html>

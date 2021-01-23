@@ -1,0 +1,35 @@
+.btn {
+	display: inline-block; /* Строчно-блочный элемент */
+	background: #8C959D; /* Серый цвет фона */
+	color: #fff; /* Белый цвет текста */
+	padding: .5em 1em; /* Поля вокруг текста */
+	text-decoration: none; /* Убираем подчёркивание */
+	border-radius: 3px; /* Скругляем уголки */
+}
+
+.red-btn {
+	color: #fff; /* цвет текста */
+	text-decoration: none; /* убирать подчёркивание у ссылок */
+	user-select: none; /* убирать выделение текста */
+	background: rgb(212, 75, 56); /* фон кнопки */
+	padding: .4em 1em; /* отступ от текста */
+	border-radius: 6px;
+	outline: none; /* убирать контур в Mozilla */
+}
+
+.yellow-btn {
+	color: white;
+	border-style: solid none;
+	border-color: #FDBE33 #000 #D77206;
+	border-radius: 4px;
+	background: linear-gradient(#F3AE0F, #E38916) #E38916;
+}
+
+.green-btn {
+	color: #fff; 
+	text-decoration: none; 
+	user-select: none; /* убирать выделение текста */
+	background: rgb(64, 199, 129);
+	padding: .5em 1em; /* отступ от текста */
+	border-radius: 6px;
+}

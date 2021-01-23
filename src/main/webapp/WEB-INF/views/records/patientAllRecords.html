@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Записи клиента</title>
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}"/>
+	<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+</head>
+
+<div class="container" align="center">
+	<h3 th:text="${patient.getLastName() +' '+ patient.getName() +' '+ patient.getPatroNymic()}">VALUE</h3>
+	<table class="table table-bordered table-striped table-sm" border="1">
+				<tr>
+					<th>ID</th>
+					<th>Время записи</th>
+					<th>Комментарий</th>
+				</tr>
+				<th:block th:each="notes : ${patient.getRecords()}">
+						<tr>
+							<td th:text="${notes.getId()}"></td>
+							<td th:text="${notes.getDateTime}"></td>
+							<td th:text="${notes.getComment()}"></td>		
+						</tr>
+				</th:block>		
+	</table>
+</div>

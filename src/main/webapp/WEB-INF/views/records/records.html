@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Записи</title>
+	<link th:rel="stylesheet"th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="/resources/css/button.css">
+	<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+	
+	<style>
+		input[type=submit] {
+			padding:5px 15px; 
+			background:#ccc; 
+			border:0 none;
+			border-radius: 5px; }
+			
+		.dateInfo {font-size: 22pt;}
+		
+	</style>
+</head>
+
+<body>
+	<div th:insert="layouts/header.html :: navbar"></div>
+	<div class="container" align="center">
+		<label class="dateInfo">Записи на:&nbsp;</label><label class="dateInfo" id = "recordsDate"></label>
+		<br/>
+		<br/>
+		<script>
+		var date = new Date();
+		$(document).ready(function(){
+			
+			document.getElementById(String('0')).value=String(date.getDate());
+			document.getElementById(String('0')).style['background-color'] = '#03fc2c';
+			
+			// увеличиваем кнопку выбранной даты
+			var thedate = window.location.href;
+			thedate = String(thedate.match(/records.+/));
+			thedate = thedate.substring(8);
+			document.getElementById(thedate).style['padding'] = '10px 20px';
+			
+			for(var i=1; i < 9;i++){
+				date.setDate(date.getDate()+i);
+				document.getElementById(String(i)).value=String(date.getDate());
+				date.setDate(date.getDate()-i);
+			}	
+			
+			date.setDate(date.getDate() + Number(thedate));
+			document.getElementById('recordsDate').innerHTML = date.getDate()+ '-' +(date.getMonth()+1) +'-'+ date.getFullYear();
+			
+			var btns = document.getElementById('btns');
+			btns.onclick = function(event){
+				var btn = event.target.id
+				document.location.replace("/records/" + btn);
+			}	
+		});	
+		</script>
+			<div id ="btns">
+				<input id="0" type ="submit"/>
+				<input id="1" type ="submit"/>
+				<input id="2" type ="submit"/>
+				<input id="3" type ="submit"/>
+				<input id="4" type ="submit"/>
+				<input id="5" type ="submit"/>
+				<input id="6" type ="submit"/>
+				<input id="7" type ="submit"/>
+				<input id="8" type ="submit"/>
+			</div>
+		<table class="table table-bordered table-striped table-sm" style="width: 85%">
+			<tr>
+				<th style="width: 10%">Время записи</th>
+				<th style="width: 20%">Пациент</th>
+				<th style="width: 40%">Комментрий</th>
+				<th style="width: 30%">Настройки</th>
+			</tr>
+				<th:block th:each="notes : ${record}">
+					<tr th:style = "'background-color:'+ ${notes.getRowColor()} + ';'">
+						<td th:text="${notes.getHoursMinuts()}"></td>
+						<td>
+							<a th:href="@{/patients/{id}(id=${notes.getPatient().getId()})}"><label th:text="${notes.getPatientName()}"></label></a>
+						</td>
+						<td th:text="${notes.getComment()}"></td>
+						<td>
+							<a th:href="@{/records/{id}/edit(id=${notes.getId()})}" class="yellow-btn">Сменить статус</a>
+							<a th:if="${notes.getPatient().getLastName()} == '' 
+							OR ${notes.getPatient().getPhone()} == ''
+							OR ${notes.getPatient().getAddress()} == ''" th:href="@{/patients/{id}/edit(id=${notes.getPatient().getId()})}" class="green-btn">Заполнить</a>
+						</td>		
+					</tr>
+				</th:block>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Запись на прием</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}"/>
+    <script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+    <link rel="stylesheet" href="/resources/css/select_row.css"> 
+    
+</head>
+
+<body>
+	<div th:insert="layouts/header.html :: navbar"></div>
+	<div align="center">
+		<h3
+			th:text="'Пациент: '+ ${patient.getLastName()} + ' ' + ${patient.getName()} + ' ' + ${patient.getPatroNymic()}">
+		</h3>
+	</div>
+	
+	<div class="container">
+		<div class="mx-auto" style="width: 550px;">
+			
+				<div class="row">
+				
+					<div class="col-md-6">
+						<label class="control-label">Выберите дату</label>
+						<div class="form-group">
+							<input type="date" id="selected_date" class="form-control">
+						</div>
+					</div>
+					
+					<div class="col-md-6 col-md-offset-6">
+						<label class="control-label">Выбранное время</label>
+						<div class="form-group">
+							<input type="time" id="selected_time" class="form-control" readonly>
+						</div>
+					</div>
+				</div>	
+			 
+				<div class="form-group">
+					<label for="duration" class="control-label">Время на процедуры:</label>
+					<select id ="duration" class="form-control">
+					    <option selected value="1">До 30 минут</option>
+					    <option value="2">До 1 часа</option>
+					    <option value="3">Дополнительная запись</option>			
+					 </select>
+				</div>
+				
+				<div class="form-group">
+					<label class="control-label">Коментарий</label>
+					<input type="text" id="comment_text" class="form-control">
+				</div>
+				
+				<div class="form-group">
+					<button class="btn btn-primary" id="save_and_send_b">Сохранить</button>
+				</div>
+		 </div>
+	</div>
+	<div class="container" align="center">
+		<table id="records_table" class="table table-hover table-bordered table-sm" style="width: 70%">
+			<thead>
+				<tr>
+					<td style="width: 20%">Время</td>
+					<td style="width: 60%">Коментарий</td>
+					<td style="width: 20%">Настройки</td>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+		
+		var curDate = new Date();
+		$(document).ready(function(){
+			
+			document.getElementById("selected_date").valueAsDate = curDate;  // set curdate in calendar
+			var curdate = 'date=' + document.getElementById('selected_date').value;
+			sendDataByAjax(curdate);
+		});
+	
+		/*****************************************************************/
+		
+		/*<![CDATA[*/ var patien_id = "[(${patient.getId()})]" /*]]>*/
+	
+		var hh_mm = []; 													// create hh:mm array
+		for(i=8, j = 1; i <=17; i++, j+=2) {
+			if(i < 10) {
+				hh_mm[j-1] = '0' + i + ':00';
+				hh_mm[j] = '0' + i + ':30';
+			} else {
+				hh_mm[j-1] = i + ':00';
+				hh_mm[j] = i + ':30';
+			}	
+		}
+
+		var hardWorkTime = new Set();      									// сет для занятого времени
+		
+		/*****************************************************************/
+		$(document).on('click', '#save_and_send_b', function(){ 
+			var date = document.getElementById('selected_date').value;
+			var time = document.getElementById('selected_time').value;
+			var duration = document.getElementById('duration').value
+			
+			var allow = true;   // проверка на допустимость выбора записи на 1 час
+			for(var i = 0; i < hh_mm.length; i++){
+				if(hh_mm[i] == time){
+					if(hardWorkTime.has(hh_mm[i+1])){
+						allow = false;
+						break;
+					}
+				}
+			}
+			if(time.length != 5) {
+				alert("Необходимо выбрать время для записи!");
+			}
+			else if(duration == 2 &&  allow == false){
+				alert("Выбранное время не доступно.");	
+			}	
+			else {
+				$.ajax({
+					method:'POST',
+					url: "http://localhost:8081/records/saveWithAjax",
+					data: {
+						patien_id :  patien_id,
+						date :       date + ' ' + time,
+						comment :    document.getElementById('comment_text').value,
+						proced_dur : duration
+					},
+					success: function (response){
+						if(response == 'ok')
+							alert('Запись успешно добавлена');
+							var date = 'date=' + document.getElementById('selected_date').value
+							sendDataByAjax(date);
+					},
+					error: function () {
+						alert('Ошибка отправки');
+					}
+				});
+			} 
+		});		
+		/*****************************************************************/
+		 function sendDataByAjax(data) {
+			  $.ajax({
+				  	method:'POST',
+					url:"http://localhost:8081/records/freeRecords",
+					data: data,
+					dataType : 'json',
+					success: function(response) {
+						JSON.stringify(response);
+						var trHTML = '';				
+						$('#records_table').find('tbody').empty();			
+						trHTML += '<tbody>';
+						var j = 0;
+						var mode = 0
+						while(j < 20) {
+							mode--;
+							$.each(response, function (i, item) {
+								if(hh_mm[j] == item.dateTime.substr(11,16)) {
+									if(item.duration == 1) {
+										trHTML += '<tr style="background-color:#9be096">';
+										mode = 1;
+									}						        	
+						        	if(item.duration == 2) {
+						        		trHTML += '<tr style="background-color:#faa887">';
+						        		mode = 2;
+						        	}	
+						        	trHTML += '<td>' + hh_mm[j] + '</td><td>'+ item.comment +'</td><td></td></tr>' ;
+						        	
+						        	hardWorkTime.add(hh_mm[j]); // записываем занятое время				
+								}								
+							});					
+							if(mode < 1) 
+								trHTML += '<tr><td class="tm">' + hh_mm[j] + '</td><td>' + '</td><td><button type="button" class="show">Выбрать</button></td></tr>';											
+							j++;
+						}
+				        trHTML += '</tbody>';
+				        $('#records_table').append(trHTML);
+					},
+					error: function() {
+						alert("Ошибка при получении данных!");
+					}
+				});
+		  }
+		/*****************************************************************/
+		 $(document).ready(function(){   // подстветка строки при наведении
+				$('.table tr').hover(function(){
+					$(this).addClass('hover');
+				}, function() {
+					$(this).removeClass('hover');
+				});
+			});
+		/*****************************************************************/
+		$(document).on('change', '#selected_date', function(){   
+		  var selected_date = document.getElementById('selected_date').value;
+		  var selDate = new Date(selected_date);
+		  
+		  if(selDate.setHours(23,59,0,0) < curDate) {
+			  alert("Выбранная дата не доступна для записей");
+			  document.getElementById("selected_date").valueAsDate = curDate;
+		  }else {
+			  selected_date = 'date=' + selected_date;
+			  sendDataByAjax(selected_date);
+		  }  
+		});
+		/*****************************************************************/
+		$(document).on('change', '#duration', function(){
+			var value = document.getElementById('duration').value;
+			if(value == '3'){
+				document.getElementById('selected_time').readOnly = false;
+			}else {
+				document.getElementById('selected_time').readOnly = true;
+			}
+		}) 
+		/*****************************************************************/
+		$(document).on("click", ".show", function(){
+			var $row = $(this).closest("tr");    			// Find row
+		    var $text = $row.find(".tm").text();			// Find time
+		    document.getElementById('selected_time').value = $text;
+		});
+	</script>	
+</body>
+</html>
+

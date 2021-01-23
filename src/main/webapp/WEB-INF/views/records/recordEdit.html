@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+	<meta charset="UTF-8">
+	<title>Записи</title>
+	<link th:rel="stylesheet"th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}" />
+	<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+</head>
+
+
+<body>
+	<div th:insert="layouts/header.html :: navbar"></div>
+	
+		<div class="container" style="width: 40%;">
+			<form th:method="PATCH" th:action="@{/records/{id}/(id=${record.getPatient().getId()})}" th:object="${record}">
+				<div class="form-group">
+					<label style="font-size: 18pt;">Пациент:&nbsp;</label><label th:text="${record.getPatientName()}" style="font-size: 18pt;"></label> 
+					<br/>
+					<div class="row">
+							<div class="col">
+								<input type="text" th:field="*{id}" class="form-control" style="display: none;" readonly>
+								<input type="text" th:field="*{duration}" class="form-control" style="display: none;" readonly>
+								
+								<label>Время записи</label> 
+								<input type="text" th:field="*{dateTime}" class="form-control" readonly>
+							</div>
+						
+							<div class="col">
+								<label>Статус</label> 
+								<select th:field="*{status}" class="form-control">
+								    <option th:value="0" th:text="Активен"></option>
+								    <option th:value="1" th:text="Обработан"></option>
+								    <option th:value="2" th:text="Отменен"></option>
+								</select>
+							</div>	
+					</div>
+					<br/>
+					<div>						
+						<label>Коментарий</label> 
+						<textarea th:field="*{comment}" class="form-control"></textarea>
+					</div>								
+				</div>
+			
+				<button type="submit" class="btn btn-success">Сохранить</button>
+			</form>
+		</div>
+</body>
+</html>

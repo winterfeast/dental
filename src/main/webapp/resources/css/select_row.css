@@ -1,0 +1,19 @@
+.table th, .table td {
+		text-align: center;
+		vertical-align: middle;
+		position: relative;
+		cursor: pointer;
+	}
+	/* Hover */
+	.table .hover td:after {
+		content: '';
+		position: absolute;
+		top: 0px;
+		right: 0px;    
+		bottom: 0px;    
+		left: 0px;
+		width: 105%;
+		border-top: 3px solid #ffe5c5;
+		border-bottom: 3px solid #ffe5c5;
+	}
+	

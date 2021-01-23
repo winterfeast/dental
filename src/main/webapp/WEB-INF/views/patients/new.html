@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый пациент</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}"/>
+    <script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}"></script>
+</head>
+<body>
+	<div th:insert="layouts/header.html :: navbar"></div>
+	<div class="container" style="width: 85%; margin-left: 30%;">
+		<h4>Новый пациент</h4><br/>
+		<form th:method="POST" th:action="@{/patients}" th:object="${patient}" onsubmit="return checkForm(this);">
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3">
+						<label for="lastName">Фамилия</label> 
+						<input type="text" th:field="*{lastName}" class="form-control">
+					</div>
+					<div class="col-md-3">
+						<label for="name">Имя</label> 
+						<input type="text" th:field="*{name}" class="form-control" id="patientname">
+					</div>
+				</div>
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="col-md-3">
+					<label for="name">Отчество</label> <input type="text"
+					th:field="*{patroNymic}" class="form-control">
+				</div>
+				<div class="col-md-3">
+					<label for="name">Телефон</label> <input type="tel"
+					th:field="*{phone}" class="form-control">
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="col-md-2">
+					<label for="name">Дата</label> <input type="date"
+					th:field="*{addDate}" placeholder="Дата" class="form-control" id="bornDate">
+				</div>
+				<div class="col-md-4">
+					<label for="name">Адрес</label> <input type="text"
+					th:field="*{address}" placeholder="Адрес" class="form-control">
+				</div>
+			</div>
+		</div>		
+		<button type="submit" class="btn btn-success">Сохранить</button>
+		</form>
+	</div>
+	<script>
+	function checkForm(form) {
+		var bornDate = document.getElementById('bornDate').value;
+		var name = document.getElementById('patientname').value;
+		
+		var errorText = ['Поле с датой рождения не заполнено', 
+						 'Поле с именем не заполнено'];
+		
+		if(name.length < 3){
+			alert(errorText[1]);
+			return false;
+		}
+		if(bornDate.length < 3) {
+			alert(errorText[0]);
+			return false;
+		}
+		else {
+			alert('Пациент добавлен!');
+			return true;
+		}
+	}
+	</script>
+	
+</body>
+</html>
