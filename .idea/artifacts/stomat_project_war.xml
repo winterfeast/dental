@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="stomat_project:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>stomat_project</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="stomat_project.war">
+      <element id="artifact" artifact-name="stomat_project:war exploded" />
+    </root>
+  </artifact>
+</component>
