@@ -24,6 +24,7 @@ public class PatientsController {
 	@Autowired
     public PatientsController(PatientService patientService) {
 	    	String autor = "Meiram123";
+        String autor2 = "Meiram123";
 		this.patientService = patientService;
 	}
 
