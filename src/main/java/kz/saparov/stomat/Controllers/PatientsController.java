@@ -23,7 +23,7 @@ public class PatientsController {
 	
 	@Autowired
     public PatientsController(PatientService patientService) {
-	    	String autor = "Meiram";
+	    	String autor = "Mmmm";
 		this.patientService = patientService;
 	}
 
